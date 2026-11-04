@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Weekly Operator Roster</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #1b1f27;
+      --muted: #5d6675;
+      --brand: #2563eb;
+      --danger: #d92d20;
+      --border: #dde2ec;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; padding: 24px 16px 60px; }
+    .wrap { max-width: 1150px; margin: 0 auto; }
+    header.top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+    h1 { font-size: 1.6rem; }
+    .sub { color: var(--muted); }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 18px; }
+    h2 { font-size: 1.1rem; margin-bottom: 12px; }
+    h3 { font-size: .95rem; margin: 18px 0 8px; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; }
+    .two .card { margin-bottom: 0; }
+    .two-wrap { margin-bottom: 18px; }
+    label { font-size: .85rem; color: var(--muted); display: block; margin-bottom: 4px; }
+    input, select { font: inherit; padding: 9px 11px; border: 1px solid var(--border); border-radius: 8px; background: #fff; color: var(--text); min-width: 0; }
+    input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px solid var(--brand); outline-offset: 1px; }
+    .field { flex: 1 1 150px; }
+    .field input, .field select { width: 100%; }
+    button { font: inherit; cursor: pointer; border: 0; border-radius: 8px; padding: 9px 16px; font-weight: 600; background: var(--brand); color: #fff; }
+    button.ghost { background: transparent; color: var(--brand); border: 1px solid var(--border); }
+    button.del { background: transparent; color: var(--danger); padding: 4px 10px; border: 1px solid var(--border); }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+    .warn { color: var(--danger); font-size: .88rem; margin-top: 10px; min-height: 1.2em; }
+    .empty { color: var(--muted); font-size: .92rem; }
+    .hint { color: var(--muted); font-size: .85rem; margin-top: 8px; }
+
+    .scroll { overflow-x: auto; }
+    table.grid { width: 100%; border-collapse: collapse; min-width: 760px; }
+    .grid th, .grid td { text-align: left; padding: 8px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .grid th { font-size: .85rem; color: var(--muted); font-weight: 600; }
+    .grid th small { display: block; font-weight: 400; }
+    .grid td.opcell { font-weight: 600; white-space: nowrap; }
+    .grid td.opcell small { display: block; font-weight: 400; color: var(--muted); }
+    .grid select, .grid input { width: 100%; min-width: 120px; }
+    .grid select.dup { border-color: var(--danger); background: #fff1f0; }
+    .grid tr.suprow td { background: #f0f4ff; border-top: 2px solid var(--border); }
+
+    #settings { display: none; border-color: var(--brand); }
+    #settings.open { display: block; }
+    .list { list-style: none; }
+    .list li { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .days { display: flex; flex-wrap: wrap; gap: 14px; }
+    .days label { display: inline-flex; align-items: center; gap: 6px; color: var(--text); font-size: .95rem; margin: 0; }
+
+    #sheet { display: none; }
+    @media print {
+      @page { size: A4 landscape; margin: 14mm; }
+      body { background: #fff; padding: 0; }
+      .wrap > *:not(#sheet) { display: none !important; }
+      #sheet { display: block; color: #000; }
+      #sheet h1 { font-size: 22pt; margin-bottom: 2px; }
+      #sheet .meta { color: #444; margin-bottom: 14px; font-size: 11pt; }
+      #sheet table { width: 100%; border-collapse: collapse; font-size: 11pt; }
+      #sheet th { background: #eee; border: 1px solid #999; padding: 8px; text-align: left; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      #sheet th small { display: block; font-weight: 400; color: #444; }
+      #sheet td { border: 1px solid #999; padding: 9px 8px; }
+      #sheet td small { display: block; color: #444; }
+      #sheet tr.suprow td { background: #f2f2f2; font-weight: 600; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      #sheet .sign { margin-top: 40px; display: flex; justify-content: space-between; font-size: 11pt; }
+      #sheet .sign div { width: 35%; border-top: 1px solid #000; padding-top: 6px; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div>
+      <h1>Weekly operator roster</h1>
+      <p class="sub">One area per operator per day. An operator cannot be placed in the same area she worked the day before.</p>
+    </div>
+    <button class="ghost" id="settingsBtn" aria-expanded="false" aria-controls="settings">Settings</button>
+  </header>
+
+  <!-- Settings -->
+  <section class="card" id="settings" aria-label="Settings">
+    <h2>Settings</h2>
+
+    <h3>Areas</h3>
+    <ul class="list" id="areaList"></ul>
+
+    <h3>Operators</h3>
+    <ul class="list" id="opList"></ul>
+
+    <h3>Working days</h3>
+    <div class="days" id="dayChecks"></div>
+
+    <h3>Week starts on</h3>
+    <div class="field" style="max-width:220px">
+      <select id="weekStart" aria-label="Week starts on">
+        <option value="6">Saturday</option>
+        <option value="0">Sunday</option>
+        <option value="1">Monday</option>
+      </select>
+    </div>
+
+    <h3>Breaks</h3>
+    <div class="row">
+      <div class="field" style="max-width:210px"><label for="breakLen">Break length (minutes)</label><input id="breakLen" type="number" min="5" max="180" step="5"></div>
+      <div class="field" style="max-width:210px"><label for="breakFirst">First break starts at</label><input id="breakFirst" type="time"></div>
+    </div>
+    <p class="hint">Auto-fill uses these to stagger breaks so operators don't leave their areas at the same time. You can change any break in the roster.</p>
+
+    <div class="actions"><button class="ghost" id="closeSettings">Close settings</button></div>
+  </section>
+
+  <!-- Details -->
+  <section class="card">
+    <h2>Roster details</h2>
+    <div class="row">
+      <div class="field"><label for="shop">Shop name</label><input id="shop" value="My Playground"></div>
+      <div class="field"><label for="date">Any date in the week</label><input id="date" type="date"></div>
+    </div>
+  </section>
+
+  <!-- Add operator + add area -->
+  <div class="two two-wrap">
+    <section class="card">
+      <h2>Add operator</h2>
+      <div class="row">
+        <div class="field"><label for="opName">Operator name</label><input id="opName" placeholder="e.g. Sara"></div>
+        <div class="field"><label for="opPhone">Phone (optional)</label><input id="opPhone" placeholder="05xxxxxxxx"></div>
+      </div>
+      <div class="actions"><button id="addOp">Add operator</button></div>
+    </section>
+
+    <section class="card">
+      <h2>Add area</h2>
+      <div class="row">
+        <div class="field"><label for="areaName">Area name</label><input id="areaName" placeholder="e.g. Ball pit"></div>
+      </div>
+      <div class="actions"><button id="addArea">Add area</button></div>
+      <p class="hint">To remove an area, open Settings.</p>
+    </section>
+  </div>
+
+  <!-- Roster -->
+  <section class="card">
+    <h2>Week roster</h2>
+    <p class="empty" id="emptyMsg" hidden>Add at least one operator and one area to build the roster.</p>
+    <div class="scroll"><table class="grid" id="grid"></table></div>
+    <p class="warn" id="warn" role="alert"></p>
+    <div class="actions">
+      <button id="autoBtn">Auto-fill rotation</button>
+      <button id="pdfBtn">Download PDF</button>
+      <button class="ghost" id="printBtn">Print</button>
+      <button class="ghost" id="clearBtn">Clear roster</button>
+    </div>
+    <p class="hint">Areas an operator worked the day before (or will work the day after) are greyed out in her dropdown. Set each operator's break start time and choose a reliever to cover her area during the break. Type the supervisor's name for each day in the last row.</p>
+  </section>
+
+  <!-- Printable sheet -->
+  <div id="sheet">
+    <h1 id="pShop"></h1>
+    <p class="meta" id="pMeta"></p>
+    <table id="pTable"></table>
+    <div class="sign"><div>Supervisor signature</div><div>Date</div></div>
+  </div>
+
+</div>
+
+<script>
+  // ---------- Starting data (edit these defaults) ----------
+  const DEFAULT_AREAS = ['Ball pit', 'Trampoline', 'Slides', 'Soft play', 'Entrance & tickets', 'Arcade corner', 'Party room'];
+  const DAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const KEY = 'weekly-operator-roster-v3';
+
+  let state = load() || {
+    operators: [],
+    areas: DEFAULT_AREAS.slice(),
+    workDays: [true,true,true,true,true,true,true],   // index 0 = Sunday ... 6 = Saturday
+    weekStart: 6,                                      // 6 = Saturday, 0 = Sunday, 1 = Monday
+    assign: {},                                        // { operatorName: { "YYYY-MM-DD": areaName } }
+    supervisors: {}                                    // { "YYYY-MM-DD": supervisorName }
+  };
+
+  state.breaks = state.breaks || {};            // { operatorName: { "YYYY-MM-DD": "HH:MM" } }
+  state.breakLen = state.breakLen || 30;        // minutes
+  state.breakFirst = state.breakFirst || '12:00';
+  state.relievers = state.relievers || {};      // { operatorName: { "YYYY-MM-DD": relieverName } }
+
+  const $ = id => document.getElementById(id);
+  function load() { try { return JSON.parse(localStorage.getItem(KEY)); } catch (e) { return null; } }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+  function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function iso(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+  function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
+
+  const today = new Date();
+  $('date').value = iso(today);
+
+  // Nearest working day before / after a date (works across weeks)
+  function workingNeighbor(d, dir) {
+    if (!state.workDays.some(Boolean)) return null;
+    let x = addDays(d, dir);
+    for (let i = 0; i < 8; i++) {
+      if (state.workDays[x.getDay()]) return iso(x);
+      x = addDays(x, dir);
+    }
+    return null;
+  }
+  const areaOn = (op, isoDate) => (isoDate && state.assign[op] && state.assign[op][isoDate]) || '';
+  const breakOn = (op, isoDate) => (state.breaks[op] && state.breaks[op][isoDate]) || '';
+  const relieverOn = (op, isoDate) => (state.relievers[op] && state.relievers[op][isoDate]) || '';
+  const pad2 = n => String(n).padStart(2, '0');
+  function breakText(start) {            // "12:00" -> "12:00–12:30"
+    if (!start) return '';
+    const [h, m] = start.split(':').map(Number);
+    const e = (h * 60 + m + Number(state.breakLen)) % 1440;
+    return start + '–' + pad2(Math.floor(e / 60)) + ':' + pad2(e % 60);
+  }
+
+  function weekDays() {
+    const picked = $('date').value ? new Date($('date').value + 'T00:00') : new Date();
+    const back = (picked.getDay() - state.weekStart + 7) % 7;
+    const start = addDays(picked, -back);
+    const out = [];
+    for (let i = 0; i < 7; i++) {
+      const d = addDays(start, i);
+      if (state.workDays[d.getDay()]) {
+        out.push({ date: d, iso: iso(d), name: DAY_NAMES[d.getDay()], label: d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) });
+      }
+    }
+    return out;
+  }
+
+  // ---------- Render ----------
+  function render() { renderSettings(); renderGrid(); }
+
+  function renderSettings() {
+    $('weekStart').value = String(state.weekStart);
+    $('breakLen').value = state.breakLen;
+    $('breakFirst').value = state.breakFirst;
+
+    $('areaList').innerHTML = state.areas.length ? '' : '<li class="empty">No areas yet.</li>';
+    state.areas.forEach((area, i) => {
+      const li = document.createElement('li');
+      li.innerHTML = `<span>${esc(area)}</span>`;
+      const b = document.createElement('button');
+      b.className = 'del'; b.textContent = 'Remove'; b.setAttribute('aria-label', 'Remove area ' + area);
+      b.onclick = () => {
+        if (!confirm('Remove "' + area + '"? Operators assigned to it will become unassigned.')) return;
+        state.areas.splice(i, 1);
+        Object.values(state.assign).forEach(a => { for (const k in a) if (a[k] === area) delete a[k]; });
+        save(); render();
+      };
+      li.appendChild(b); $('areaList').appendChild(li);
+    });
+
+    $('opList').innerHTML = state.operators.length ? '' : '<li class="empty">No operators yet.</li>';
+    state.operators.forEach((op, i) => {
+      const li = document.createElement('li');
+      li.innerHTML = `<span>${esc(op.name)}${op.phone ? ' · ' + esc(op.phone) : ''}</span>`;
+      const b = document.createElement('button');
+      b.className = 'del'; b.textContent = 'Remove'; b.setAttribute('aria-label', 'Remove operator ' + op.name);
+      b.onclick = () => {
+        if (!confirm('Remove operator "' + op.name + '"?')) return;
+        state.operators.splice(i, 1); delete state.assign[op.name]; delete state.breaks[op.name]; delete state.relievers[op.name];
+        Object.values(state.relievers).forEach(r => { for (const k in r) if (r[k] === op.name) delete r[k]; });
+        save(); render();
+      };
+      li.appendChild(b); $('opList').appendChild(li);
+    });
+
+    $('dayChecks').innerHTML = '';
+    DAY_NAMES.forEach((n, wd) => {
+      const l = document.createElement('label');
+      const c = document.createElement('input');
+      c.type = 'checkbox'; c.checked = state.workDays[wd];
+      c.onchange = () => { state.workDays[wd] = c.checked; save(); renderGrid(); };
+      l.appendChild(c); l.appendChild(document.createTextNode(n));
+      $('dayChecks').appendChild(l);
+    });
+  }
+
+  function renderGrid() {
+    const days = weekDays();
+    const grid = $('grid');
+    const ready = state.operators.length && state.areas.length && days.length;
+    $('emptyMsg').hidden = !!ready;
+    grid.innerHTML = '';
+    if (!ready) { $('warn').textContent = ''; return; }
+
+    const head = document.createElement('tr');
+    head.innerHTML = '<th>Operator</th>' + days.map(d => `<th>${d.name}<small>${d.label}</small></th>`).join('');
+    grid.appendChild(head);
+
+    state.operators.forEach(op => {
+      const tr = document.createElement('tr');
+      const first = document.createElement('td');
+      first.className = 'opcell';
+      first.innerHTML = esc(op.name) + (op.phone ? `<small>${esc(op.phone)}</small>` : '');
+      tr.appendChild(first);
+      days.forEach(d => {
+        const td = document.createElement('td');
+        const sel = document.createElement('select');
+        sel.className = 'area'; sel.dataset.op = op.name; sel.dataset.iso = d.iso;
+        sel.setAttribute('aria-label', op.name + ' on ' + d.name + ' ' + d.label);
+        sel.innerHTML = '<option value="">— Off —</option>' + state.areas.map(a => `<option value="${esc(a)}">${esc(a)}</option>`).join('');
+        sel.value = areaOn(op.name, d.iso);
+        sel.onchange = () => {
+          state.assign[op.name] = state.assign[op.name] || {};
+          if (sel.value) state.assign[op.name][d.iso] = sel.value; else delete state.assign[op.name][d.iso];
+          save(); refreshRules();
+        };
+        td.appendChild(sel);
+        const lab = document.createElement('small');
+        lab.textContent = 'Break starts';
+        lab.style.cssText = 'display:block;color:var(--muted);margin-top:6px;font-size:.75rem';
+        const br = document.createElement('input');
+        br.type = 'time';
+        br.setAttribute('aria-label', 'Break start for ' + op.name + ' on ' + d.name + ' ' + d.label);
+        br.value = breakOn(op.name, d.iso);
+        br.onchange = () => {
+          state.breaks[op.name] = state.breaks[op.name] || {};
+          if (br.value) state.breaks[op.name][d.iso] = br.value; else delete state.breaks[op.name][d.iso];
+          save(); refreshRules();
+        };
+        td.appendChild(lab); td.appendChild(br);
+
+        const rlab = document.createElement('small');
+        rlab.textContent = 'Reliever (covers the break)';
+        rlab.style.cssText = 'display:block;color:var(--muted);margin-top:6px;font-size:.75rem';
+        const rel = document.createElement('select');
+        rel.dataset.rel = op.name;
+        rel.setAttribute('aria-label', 'Reliever for ' + op.name + ' on ' + d.name + ' ' + d.label);
+        rel.innerHTML = '<option value="">— None —</option>' +
+          state.operators.filter(o => o.name !== op.name).map(o => `<option value="${esc(o.name)}">${esc(o.name)}</option>`).join('');
+        rel.value = relieverOn(op.name, d.iso);
+        rel.onchange = () => {
+          state.relievers[op.name] = state.relievers[op.name] || {};
+          if (rel.value) state.relievers[op.name][d.iso] = rel.value; else delete state.relievers[op.name][d.iso];
+          save(); refreshRules();
+        };
+        td.appendChild(rlab); td.appendChild(rel);
+        tr.appendChild(td);
+      });
+      grid.appendChild(tr);
+    });
+
+    // Supervisor row (typed manually for each day)
+    const sup = document.createElement('tr');
+    sup.className = 'suprow';
+    sup.innerHTML = '<td class="opcell">Supervisor</td>';
+    days.forEach(d => {
+      const td = document.createElement('td');
+      const inp = document.createElement('input');
+      inp.type = 'text'; inp.placeholder = 'Type name';
+      inp.setAttribute('aria-label', 'Supervisor on ' + d.name + ' ' + d.label);
+      inp.value = state.supervisors[d.iso] || '';
+      inp.oninput = () => { if (inp.value.trim()) state.supervisors[d.iso] = inp.value; else delete state.supervisors[d.iso]; save(); };
+      td.appendChild(inp); sup.appendChild(td);
+    });
+    grid.appendChild(sup);
+
+    refreshRules();
+  }
+
+  // Grey out the area an operator worked the day before (or works the day after)
+  // and flag any breaks of the rules.
+  function refreshRules() {
+    const days = weekDays();
+    const msgs = [];
+    document.querySelectorAll('#grid select.area').forEach(sel => {
+      const op = sel.dataset.op, d = new Date(sel.dataset.iso + 'T00:00');
+      const prev = areaOn(op, workingNeighbor(d, -1));
+      const next = areaOn(op, workingNeighbor(d, 1));
+      Array.from(sel.options).forEach(o => { o.disabled = !!o.value && (o.value === prev || o.value === next) && o.value !== sel.value; });
+      sel.classList.remove('dup');
+      if (sel.value && (sel.value === prev || sel.value === next)) {
+        sel.classList.add('dup');
+        const msg = `${op} is in ${sel.value} on consecutive days.`;
+        if (!msgs.includes(msg)) msgs.push(msg);
+      }
+    });
+    // Same area twice in one week (warning only)
+    state.operators.forEach(op => {
+      const used = {};
+      days.forEach(d => { const a = areaOn(op.name, d.iso); if (a) (used[a] = used[a] || []).push(d.iso); });
+      Object.entries(used).forEach(([area, list]) => {
+        if (list.length > 1) {
+          msgs.push(`${op.name} is in ${area} on more than one day this week.`);
+          list.forEach(i => { const el = document.querySelector(`#grid select[data-op="${CSS.escape(op.name)}"][data-iso="${i}"]`); if (el) el.classList.add('dup'); });
+        }
+      });
+    });
+    const toMin = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+    state.operators.forEach(op => days.forEach(d => {
+      const rel = relieverOn(op.name, d.iso);
+      const b1 = breakOn(op.name, d.iso), b2 = rel ? breakOn(rel, d.iso) : '';
+      if (b1 && b2 && Math.abs(toMin(b1) - toMin(b2)) < Number(state.breakLen)) {
+        msgs.push(`${rel} is on break at the same time as ${op.name} on ${d.name}, so she cannot cover.`);
+      }
+    }));
+    if (state.areas.length < days.length) msgs.push(`There are ${days.length} working days but only ${state.areas.length} areas, so areas will repeat during the week. Add more areas or remove a working day.`);
+    $('warn').textContent = msgs.join(' ');
+  }
+
+  // ---------- Actions ----------
+  // Auto-fill: for each day, give every operator an area that is
+  // (1) not the one she worked the previous day, (2) not already used by her this week,
+  // (3) not taken by another operator the same day. Rules 2 and 3 are relaxed only if impossible.
+  $('autoBtn').onclick = () => {
+    const days = weekDays();
+    if (!state.areas.length || !state.operators.length || !days.length) return;
+    const keep = {};
+    days.forEach(d => { keep[d.iso] = true; });
+    state.operators.forEach(op => { state.assign[op.name] = state.assign[op.name] || {}; days.forEach(d => delete state.assign[op.name][d.iso]); });
+
+    days.forEach((d, k) => {
+      const taken = new Set();
+      const prevIso = workingNeighbor(d.date, -1);
+      state.operators.forEach((op, i) => {
+        const prev = areaOn(op.name, prevIso);
+        const usedWeek = new Set(days.map(x => areaOn(op.name, x.iso)).filter(Boolean));
+        const order = state.areas.map((_, j) => state.areas[(i + k + j) % state.areas.length]);
+        const pick =
+          order.find(a => a !== prev && !usedWeek.has(a) && !taken.has(a)) ||
+          order.find(a => a !== prev && !taken.has(a)) ||
+          order.find(a => a !== prev && !usedWeek.has(a)) ||
+          order.find(a => a !== prev) || order[0];
+        state.assign[op.name][d.iso] = pick; taken.add(pick);
+        const [fh, fm] = state.breakFirst.split(':').map(Number);
+        const startMin = (fh * 60 + fm + ((i + k) % state.operators.length) * state.breakLen) % 1440;
+        state.breaks[op.name] = state.breaks[op.name] || {};
+        state.breaks[op.name][d.iso] = pad2(Math.floor(startMin / 60)) + ':' + pad2(startMin % 60);
+      });
+    });
+    // Reliever: the next operator in the list, whose staggered break does not overlap
+    const n = state.operators.length;
+    state.operators.forEach((op, i) => {
+      state.relievers[op.name] = state.relievers[op.name] || {};
+      days.forEach(d => {
+        if (n > 1) state.relievers[op.name][d.iso] = state.operators[(i + 1) % n].name;
+        else delete state.relievers[op.name][d.iso];
+      });
+    });
+    save(); renderGrid();
+  };
+
+  $('clearBtn').onclick = () => {
+    if (!confirm('Clear the roster for this week?')) return;
+    weekDays().forEach(d => { state.operators.forEach(op => { if (state.assign[op.name]) delete state.assign[op.name][d.iso]; if (state.breaks[op.name]) delete state.breaks[op.name][d.iso]; if (state.relievers[op.name]) delete state.relievers[op.name][d.iso]; }); delete state.supervisors[d.iso]; });
+    save(); renderGrid();
+  };
+
+  $('addOp').onclick = () => {
+    const name = $('opName').value.trim();
+    if (!name) return $('opName').focus();
+    if (state.operators.some(o => o.name.toLowerCase() === name.toLowerCase())) { $('warn').textContent = name + ' is already in the list.'; return; }
+    state.operators.push({ name, phone: $('opPhone').value.trim() });
+    $('opName').value = ''; $('opPhone').value = '';
+    save(); render(); $('opName').focus();
+  };
+  $('opName').addEventListener('keydown', e => { if (e.key === 'Enter') $('addOp').click(); });
+
+  $('addArea').onclick = () => {
+    const name = $('areaName').value.trim();
+    if (!name) return $('areaName').focus();
+    if (state.areas.some(a => a.toLowerCase() === name.toLowerCase())) { $('warn').textContent = name + ' already exists.'; return; }
+    state.areas.push(name); $('areaName').value = '';
+    save(); render(); $('areaName').focus();
+  };
+  $('areaName').addEventListener('keydown', e => { if (e.key === 'Enter') $('addArea').click(); });
+
+  $('weekStart').onchange = e => { state.weekStart = Number(e.target.value); save(); renderGrid(); };
+  $('breakLen').onchange = e => { state.breakLen = Math.max(5, Number(e.target.value) || 30); e.target.value = state.breakLen; save(); };
+  $('breakFirst').onchange = e => { state.breakFirst = e.target.value || '12:00'; e.target.value = state.breakFirst; save(); };
+  $('date').onchange = renderGrid;
+
+  function toggleSettings(open) {
+    $('settings').classList.toggle('open', open);
+    $('settingsBtn').setAttribute('aria-expanded', open);
+    if (open) $('settings').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  $('settingsBtn').onclick = () => toggleSettings(!$('settings').classList.contains('open'));
+  $('closeSettings').onclick = () => toggleSettings(false);
+
+  // Fills the printable sheet with the current roster
+  function fillSheet() {
+    const days = weekDays();
+    $('pShop').textContent = $('shop').value || 'Weekly operator roster';
+    const range = days.length ? days[0].label + ' – ' + days[days.length - 1].label : '';
+    $('pMeta').textContent = 'Weekly operator roster' + (range ? ' · ' + range : '');
+    let html = '<tr><th>Operator</th>' + days.map(d => `<th>${d.name}<small>${d.label}</small></th>`).join('') + '</tr>';
+    state.operators.forEach(op => {
+      html += `<tr><td><strong>${esc(op.name)}</strong>${op.phone ? `<small>${esc(op.phone)}</small>` : ''}</td>` +
+        days.map(d => `<td>${esc(areaOn(op.name, d.iso) || '—')}${breakOn(op.name, d.iso) ? `<small>Break ${esc(breakText(breakOn(op.name, d.iso)))}</small>` : ''}${relieverOn(op.name, d.iso) ? `<small>Relief: ${esc(relieverOn(op.name, d.iso))}</small>` : ''}</td>`).join('') + '</tr>';
+    });
+    html += '<tr class="suprow"><td>Supervisor</td>' + days.map(d => `<td>${esc(state.supervisors[d.iso] || '—')}</td>`).join('') + '</tr>';
+    $('pTable').innerHTML = html;
+  }
+  const fileName = () => (($('shop').value || 'Roster') + ' - week ' + ($('date').value || '')).replace(/[\\/:*?"<>|]/g, '');
+
+  // Print: opens the browser print dialog (choose "Save as PDF")
+  $('printBtn').onclick = () => {
+    fillSheet();
+    const prev = document.title;
+    document.title = fileName();
+    window.print();
+    document.title = prev;
+  };
+
+  // Download PDF: draws the roster on canvas pages and writes the PDF file by hand.
+  // No external libraries are used, so it works offline and in every modern browser.
+  function drawRosterPages() {
+    const days = weekDays();
+    const W = 2339, H = 1654, M = 90, FIRST = 380;          // A4 landscape at ~200 dpi
+    const FONT = '"Segoe UI", Tahoma, Arial, sans-serif';
+    const colW = days.length ? (W - 2 * M - FIRST) / days.length : 0;
+    const pages = [];
+    let ctx, y;
+
+    const newPage = () => {
+      const c = document.createElement('canvas');
+      c.width = W; c.height = H;
+      ctx = c.getContext('2d');
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, W, H);
+      pages.push(c); y = M;
+    };
+    // Draws text, shrinking it if it is too wide for its cell
+    const text = (str, x, baseY, maxW, size, weight, color) => {
+      let s = size;
+      ctx.fillStyle = color || '#000000';
+      do { ctx.font = weight + ' ' + s + 'px ' + FONT; s -= 2; } while (ctx.measureText(String(str)).width > maxW && s > 14);
+      ctx.fillText(String(str), x, baseY);
+    };
+    const row = (h, bg, cells) => {
+      if (bg) { ctx.fillStyle = bg; ctx.fillRect(M, y, W - 2 * M, h); }
+      ctx.strokeStyle = '#999999'; ctx.lineWidth = 2;
+      let x = M;
+      cells.forEach((cell, i) => {
+        const w = i === 0 ? FIRST : colW;
+        ctx.strokeRect(x, y, w, h);
+        const subs = [cell.b, cell.c].filter(Boolean);
+        const aY = subs.length === 2 ? 0.33 : subs.length === 1 ? 0.45 : 0.62;
+        text(cell.a, x + 16, y + h * aY, w - 32, 32, cell.bold ? '700' : '400');
+        subs.forEach((t, j) => text(t, x + 16, y + h * (subs.length === 2 ? 0.62 + j * 0.26 : 0.82), w - 32, 24, '400', '#444444'));
+        x += w;
+      });
+      y += h;
+    };
+    const header = () => row(110, '#eeeeee', [{ a: 'Operator', bold: true }].concat(days.map(d => ({ a: d.name, b: d.label, bold: true }))));
+
+    newPage();
+    text($('shop').value || 'Weekly operator roster', M, y + 50, W - 2 * M, 56, '700');
+    y += 80;
+    const range = days.length ? days[0].label + ' – ' + days[days.length - 1].label : '';
+    text('Weekly operator roster' + (range ? ' · ' + range : ''), M, y + 20, W - 2 * M, 30, '400', '#444444');
+    y += 60;
+    header();
+
+    const ROW = 120;
+    state.operators.forEach(op => {
+      if (y + ROW > H - M) { newPage(); header(); }
+      row(ROW, null, [{ a: op.name, b: op.phone, bold: true }].concat(days.map(d => ({ a: areaOn(op.name, d.iso) || '—', b: breakOn(op.name, d.iso) ? 'Break ' + breakText(breakOn(op.name, d.iso)) : '', c: relieverOn(op.name, d.iso) ? 'Relief: ' + relieverOn(op.name, d.iso) : '' }))));
+    });
+    if (y + ROW > H - M) { newPage(); header(); }
+    row(ROW, '#f2f2f2', [{ a: 'Supervisor', bold: true }].concat(days.map(d => ({ a: state.supervisors[d.iso] || '—', bold: true }))));
+
+    if (y + 200 > H - M) newPage();
+    y += 120;
+    const lw = (W - 2 * M) * 0.35;
+    ctx.strokeStyle = '#000000'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(M, y); ctx.lineTo(M + lw, y); ctx.moveTo(W - M - lw, y); ctx.lineTo(W - M, y); ctx.stroke();
+    text('Supervisor signature', M, y + 40, lw, 28, '400');
+    text('Date', W - M - lw, y + 40, lw, 28, '400');
+    return pages;
+  }
+
+  // Wraps the page images into a valid PDF file
+  function buildPdf(canvases) {
+    const enc = new TextEncoder(), parts = [], offs = [];
+    let len = 0;
+    const push = x => { const b = typeof x === 'string' ? enc.encode(x) : x; parts.push(b); len += b.length; };
+    const obj = (n, body) => { offs[n] = len; push(n + ' 0 obj\n' + body + '\nendobj\n'); };
+    const n = canvases.length;
+
+    push('%PDF-1.4\n');
+    obj(1, '<</Type/Catalog/Pages 2 0 R>>');
+    obj(2, '<</Type/Pages/Count ' + n + '/Kids[' + canvases.map((_, i) => (3 + 3 * i) + ' 0 R').join(' ') + ']>>');
+    canvases.forEach((c, i) => {
+      const pg = 3 + 3 * i, ct = pg + 1, im = pg + 2;
+      const bin = atob(c.toDataURL('image/jpeg', 0.92).split(',')[1]);
+      const jpg = new Uint8Array(bin.length);
+      for (let k = 0; k < bin.length; k++) jpg[k] = bin.charCodeAt(k);
+      const draw = 'q 842 0 0 595 0 0 cm /Im0 Do Q';
+      obj(pg, '<</Type/Page/Parent 2 0 R/MediaBox[0 0 842 595]/Resources<</XObject<</Im0 ' + im + ' 0 R>>>>/Contents ' + ct + ' 0 R>>');
+      obj(ct, '<</Length ' + draw.length + '>>\nstream\n' + draw + '\nendstream');
+      offs[im] = len;
+      push(im + ' 0 obj\n<</Type/XObject/Subtype/Image/Width ' + c.width + '/Height ' + c.height +
+           '/ColorSpace/DeviceRGB/BitsPerComponent 8/Filter/DCTDecode/Length ' + jpg.length + '>>\nstream\n');
+      push(jpg);
+      push('\nendstream\nendobj\n');
+    });
+
+    const total = 3 + 3 * n, xref = len;
+    let table = 'xref\n0 ' + total + '\n0000000000 65535 f \n';
+    for (let k = 1; k < total; k++) table += String(offs[k]).padStart(10, '0') + ' 00000 n \n';
+    push(table + 'trailer\n<</Size ' + total + '/Root 1 0 R>>\nstartxref\n' + xref + '\n%%EOF');
+    return new Blob(parts, { type: 'application/pdf' });
+  }
+
+  $('pdfBtn').onclick = () => {
+    try {
+      const blob = buildPdf(drawRosterPages());
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = fileName() + '.pdf';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+      $('warn').textContent = '';
+    } catch (e) {
+      $('warn').textContent = 'Could not create the PDF. Use the Print button and choose Save as PDF.';
+    }
+  };
+
+  render();
+</script>
+</body>
+</html>
